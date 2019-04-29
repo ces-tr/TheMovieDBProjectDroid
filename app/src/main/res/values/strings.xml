@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">TheMovieDB</string>
+    <string name="runtimeFormat">%smin</string>
+    <string name="ratingFormat">%s/10</string>
+</resources>

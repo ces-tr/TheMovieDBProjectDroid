@@ -1,0 +1,14 @@
+package  com.cestr.themoviedb.utils
+
+import android.content.Context
+import android.graphics.drawable.Drawable
+import android.support.v4.content.ContextCompat
+import android.support.v7.content.res.AppCompatResources.getDrawable
+import android.widget.ImageView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
+import com.cestr.themoviedb.R
+

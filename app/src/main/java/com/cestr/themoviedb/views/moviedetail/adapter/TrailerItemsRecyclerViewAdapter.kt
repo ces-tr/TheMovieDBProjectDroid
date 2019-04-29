@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import com.cestr.themoviedb.R
 import com.cestr.themoviedb.model.MovieVideoModel
 import com.cestr.themoviedb.views.base.IBindableAdapter
-import com.cestr.themoviedb.views.main.viewholder.ItemViewHolder
 import com.cestr.themoviedb.views.moviedetail.viewholder.VideoItemViewHolder
 
 

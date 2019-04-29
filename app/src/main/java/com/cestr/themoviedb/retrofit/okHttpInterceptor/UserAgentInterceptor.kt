@@ -1,4 +1,4 @@
-package com.cestr.testkotlin.Utils
+package com.cestr.themoviedb.retrofit.okHttpInterceptor
 
 import android.os.Build
 import okhttp3.Interceptor
@@ -19,7 +19,7 @@ class UserAgentInterceptor() : Interceptor {
         localObject1 = localObject1.toString()
         var localObject2: Any = Build.VERSION.RELEASE
         val localStringBuilder = StringBuilder()
-        localStringBuilder.append("Android/build:com.privalia.privalia/4.7.8 (")
+
         localStringBuilder.append(localObject1)
         localStringBuilder.append("; Android ")
         localStringBuilder.append(localObject2 as String)

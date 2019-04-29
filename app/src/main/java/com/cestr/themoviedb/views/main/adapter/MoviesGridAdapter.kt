@@ -5,7 +5,7 @@ import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.util.DiffUtil
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.cestr.testkotlin.views.main.ImageViewHolder
+import com.cestr.themoviedb.views.main.viewholder.ImageViewHolder
 import com.cestr.themoviedb.utils.ActionLiveData
 
 import com.cestr.themoviedb.R

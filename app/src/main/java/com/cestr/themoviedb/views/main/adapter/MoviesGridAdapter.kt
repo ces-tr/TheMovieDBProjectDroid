@@ -3,6 +3,7 @@ package com.cestr.themoviedb.views.main.adapter
 import android.content.Context
 import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.util.DiffUtil
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.cestr.themoviedb.views.main.viewholder.ImageViewHolder
@@ -12,12 +13,13 @@ import com.cestr.themoviedb.R
 
 import com.cestr.themoviedb.model.MovieModel
 import com.cestr.themoviedb.views.base.IBindableAdapter
+import com.cestr.themoviedb.views.main.viewholder.BottomLoadingViewHolder
 import org.jetbrains.annotations.NotNull
 
 
 
 
-class MoviesGridAdapter : ListAdapter<MovieModel, ImageViewHolder>(ITEM_COMPARATOR), IBindableAdapter<MovieModel> {
+class MoviesGridAdapter : ListAdapter<MovieModel, RecyclerView.ViewHolder>(ITEM_COMPARATOR), IBindableAdapter<MovieModel> {
 
     val LAST_ITEM_REACHED_THRESHOLD = 3
 
@@ -33,52 +35,70 @@ class MoviesGridAdapter : ListAdapter<MovieModel, ImageViewHolder>(ITEM_COMPARAT
 //        return productList.size
 //    }
 
-    override fun onCreateViewHolder(parent: ViewGroup, p1: Int): ImageViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 
         val inflater = LayoutInflater.from(parent.context)
         context =parent.context;
 
-        val holder: ImageViewHolder = ImageViewHolder(inflater.inflate(R.layout.cell_movies_grid, parent, false))
+        var holder: RecyclerView.ViewHolder? = null
 
-        return holder
+//         if (viewType == ITEM_PROGRESS)
+//             holder = BottomLoadingViewHolder(inflater.inflate(R.layout.cell_bottom_loading, parent,false ))
+//        else
+             holder = ImageViewHolder(inflater.inflate(R.layout.cell_movies_grid, parent, false))
+
+
+        return holder!!
     }
 
-    override fun onBindViewHolder(holder: ImageViewHolder, p1: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, p1: Int) {
 
         val movie = getItem(p1)
 
-        holder.bind(movie,p1)
+//        holder.bind(movie,p1)
+
+        if (holder is ImageViewHolder) {
+            holder.bind(movie, p1)
 
 
-        initViewHolder(holder, movie, p1)
+            removeEventHandlers(holder)
+            addEventHandlers(holder,p1)
+        }
+//        else {
+//            (holder as BottomLoadingViewHolder).bind(true)
+//        }
 
-        RemoveEventHandlers(holder)
-        AddEventHandlers(holder,p1)
 
-        checkBoundItemPosition(p1)
+//        initViewHolder(holder, movie, p1)
+//
+
+
+//        checkBoundItemPosition(p1) //Uncomment to enable fetching data onscrollover
 
     }
 
     fun checkBoundItemPosition(p1: Int) {
 
-        if (p1 >= getItemCount() - 1){
+        if (p1 >= itemCount - 1){
+
             fetchMoreData();
 
         }
     }
 
-    fun fetchMoreData(){
+    private fun fetchMoreData(){
+
         onLastItemReached.sendAction(Any())
     }
 
-    private fun AddEventHandlers(holder: ImageViewHolder, p1: Int)
+    private fun addEventHandlers(holder: ImageViewHolder, p1: Int)
     {
-        holder.itemView.setOnClickListener({
+        holder.itemView.setOnClickListener {
             onItemTapped.sendAction(getItem(p1));
-        });
+        };
     }
 
-    private fun RemoveEventHandlers(holder: ImageViewHolder)
+    private fun removeEventHandlers(holder: ImageViewHolder)
     {
         holder.itemView.setOnClickListener(null)
     }
@@ -88,6 +108,7 @@ class MoviesGridAdapter : ListAdapter<MovieModel, ImageViewHolder>(ITEM_COMPARAT
 //        productList.addAll(items)   ;
         this.submitList(items);
         notifyDataSetChanged()
+   //     notifyItemRangeChanged(0, items.size -1);
 
     }
 
@@ -96,18 +117,20 @@ class MoviesGridAdapter : ListAdapter<MovieModel, ImageViewHolder>(ITEM_COMPARAT
     }
 
 
-    private fun initViewHolder(
-        @NotNull productViewHolder: ImageViewHolder,
-        @NotNull movie: MovieModel,
-        index: Int
-    ) {
+    override fun getItemViewType(position: Int): Int {
 
+//        if (getItem(position).id == ITEM_PROGRESS)
+//            return ITEM_PROGRESS
+
+        return super.getItemViewType(position)
     }
 
 
     companion object {
         // The position of the header in the zero-based list
         const val HEADER_POSITION = 0
+        const val ITEM_PROGRESS = -1
+
 
         // A DiffUtil.ItemCallback for calculating the diff between two non-null items in a list.
 

@@ -2,18 +2,25 @@ package com.cestr.themoviedb.viewmodels
 
 import android.annotation.SuppressLint
 import android.databinding.Bindable
+import android.util.Log
 import com.cestr.themoviedb.BR
 import com.cestr.themoviedb.dto.MovieResponseWrapper
 import com.cestr.themoviedb.dto.toMovieModel
 import com.cestr.themoviedb.manager.IMovieManager
 import com.cestr.themoviedb.model.MovieModel
+import com.cestr.themoviedb.utils.ActionLiveData
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 
 class MainActivityViewModel @Inject constructor(moviesManager: IMovieManager): MovieDetailViewModel(moviesManager)
 {
+
+    var isMovieDetailsEnabled: Boolean =false
+    val onfinishedfetchingMovieData = ActionLiveData<Any?>()
+
     @Bindable
     var moviesCollection: MutableList<MovieModel>? =null
         private set(value) {
@@ -37,34 +44,11 @@ class MainActivityViewModel @Inject constructor(moviesManager: IMovieManager): M
 
     var defaultLanguage =true
 
+
     @SuppressLint("CheckResult")
     fun initVM() {
-        try {
 
-            fetchMoviesData().subscribe(){
-                finishedfetchingMovieData(it)
-            }
-        }
-        catch (e:Exception ){
-
-
-        }
-//        fetchMoviesData()
-    }
-
-    private fun finishedfetchingMovieData(it: MovieResponseWrapper?) {
-
-        it.let {
-
-            movieResponse(it!!)?.subscribe(){
-                it.let {
-
-                    moviesCollection?.addAll(it)
-                    notifyPropertyChanged(BR.moviesCollection)
-                }
-            }
-        }
-
+        loadData()
     }
 
     @SuppressLint("CheckResult")
@@ -93,25 +77,66 @@ class MainActivityViewModel @Inject constructor(moviesManager: IMovieManager): M
         return fetchMoviesObserver!!;
     }
 
-    fun movieResponse (responseWrapper : MovieResponseWrapper): Observable<MutableList<MovieModel>>? {
+    private fun movieResponse (responseWrapper : MovieResponseWrapper): Observable<MutableList<MovieModel>>? {
 
         currentPage = responseWrapper.page
 
-        val response= Observable.fromIterable(responseWrapper.results)
-                            .map({
-                                it -> it.toMovieModel()
-                            }).toList()
-                        .toObservable()
+        return Observable.fromIterable(responseWrapper.results)
+                            .map { it -> it.toMovieModel() }
+                            .toList()
+                            .toObservable()
+                            .doOnError {
+                                Log.d("movieResponse","error getting movie model from movie Response Wrapper"+it.message)
 
-        return  response
+                            }
     }
 
     @SuppressLint("CheckResult")
-    fun fetchMoreData() {
-        try{
+    fun loadData() {
+        try {
+            synchronized(this) {
+                if (isBusy) {
+                    return
+                }
 
-            fetchMoviesData().subscribe(){
-                finishedfetchingMovieData(it)
+                isBusy = true;
+            }
+
+            fetchMoviesData().subscribe() {
+                it?.let {
+
+                    movieResponse(it)?.let { movielistObservable ->
+
+                        movielistObservable
+                            .doAfterTerminate {
+
+                                isBusy = false
+                                onfinishedfetchingMovieData?.sendAction(true)
+                            }
+                            .subscribeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+
+                                { movieList ->
+                                    movieList?.let {
+
+                                        moviesCollection?.addAll(it)
+                                        notifyPropertyChanged(BR.moviesCollection)
+
+                                        if (isMovieDetailsEnabled) {
+                                            initVMWithMovieData()
+                                            isMovieDetailsEnabled = false
+                                        }
+                                    }
+                                },
+                                {
+
+                                },
+                                {
+
+                                }
+                            )
+                    }
+                }
 
             }
         }
@@ -119,8 +144,6 @@ class MainActivityViewModel @Inject constructor(moviesManager: IMovieManager): M
 
 
         }
-
-
     }
 
     fun orderListByMostPopular() {
@@ -137,7 +160,7 @@ class MainActivityViewModel @Inject constructor(moviesManager: IMovieManager): M
         currentPage =null
         fetchMoviesData().subscribe() {
             movieResponse(it!!)?.subscribe(){
-                it.let {
+                it?.let {
 
                     moviesCollection?.clear()
                     moviesCollection?.addAll(it)
@@ -149,50 +172,14 @@ class MainActivityViewModel @Inject constructor(moviesManager: IMovieManager): M
 
     fun initVMWithMovieData() {
 
-        val index =moviesCollection?.get(0)?.id
+        try {
+            val index = moviesCollection?.get(0)?.id
 
-        if(index != null) {
-            initMovieDetails(index)
+            if (index != null) {
+                initMovieDetails(index)
+            }
+
+        } catch (e: Exception) {
         }
-
-
     }
-
 }
-
-
-
-
-
-
-
-
-
-
-//        fetchMoviesObserver?.flatMap({
-//                                movieResponse(it)
-//                            })
-//                            ?.subscribe()
-//                            {
-//                                it.let {
-//
-//                                    moviesCollection?.addAll(it)
-//                                    notifyPropertyChanged(BR.moviesCollection)
-//                                }
-//                            }
-
-
-//            moviesManager?.getTopRatedMovies()
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.io())
-//                .flatMap({
-//                    movieResponse(it)
-//                })
-//                .subscribe(
-//                {
-//                    it.let {
-//                        moviesCollection?.addAll(it)
-//                        notifyPropertyChanged(BR.moviesCollection)
-//
-//                    }
-//                })

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import com.cestr.themoviedb.R
 import com.cestr.themoviedb.databinding.MainactivityLayoutBinding
@@ -19,16 +18,23 @@ import android.view.MenuItem
 
 import android.widget.Toast
 import android.content.res.Configuration
+import android.os.Handler
+import android.support.v4.view.ViewCompat
 import android.support.v4.widget.NestedScrollView
 import android.support.v7.app.AlertDialog
 import android.view.View
 import com.cestr.themoviedb.utils.getMultiChoiceAlertDialog
 import com.cestr.themoviedb.utils.getSingleChoiceAlertDialog
 import com.cestr.themoviedb.views.base.MovieDetailBaseActivity
+import android.support.v4.widget.SwipeRefreshLayout
+
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper
+import me.everything.android.ui.overscroll.IOverScrollUpdateListener
 
 
-class MainActivity : MovieDetailBaseActivity() {
 
+
+class MainActivity : MovieDetailBaseActivity() , SwipeRefreshLayout.OnRefreshListener{
 
     private var shouldSupportEmbeddedMovieDetail: Boolean=false
 
@@ -45,6 +51,12 @@ class MainActivity : MovieDetailBaseActivity() {
 
     val settingsItems = arrayOf("Order by Popularity", "Order by Higher Rating")
     val languageItems = arrayOf("English","Spanish" )
+
+    private lateinit var swipeContainer:SwipeRefreshLayout;
+
+    private var topOverScrolling:Boolean = false
+    private var bottomOverScrolling:Boolean = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -75,19 +87,30 @@ class MainActivity : MovieDetailBaseActivity() {
 
         binding.viewModel = mainActivityViewModel
 
+
+        initSwipeToRefresh()
         initDialogs()
         initRecyclerView()
-        initViewModel()
+
 
         supportEmbeddedDetail()
 
-        if(shouldSupportEmbeddedMovieDetail){
+        if(shouldSupportEmbeddedMovieDetail) {
+
             initTrailersRecyclerView()
-            mainActivityViewModel.initVMWithMovieData()
+            mainActivityViewModel.isMovieDetailsEnabled=true
+//            mainActivityViewModel.initVMWithMovieData()
         }
+        initViewModel()
     }
 
-    fun initDialogs() {
+    private fun initSwipeToRefresh() {
+
+        swipeContainer=  findViewById<SwipeRefreshLayout>(R.id.swipeContainer)
+        swipeContainer?.setOnRefreshListener(this)
+    }
+
+    private fun initDialogs() {
 
         settingsDialogBuilder= getMultiChoiceAlertDialog(this, settingsItems,"Settings", { index: Int, isSelected: Boolean ->
 
@@ -135,19 +158,84 @@ class MainActivity : MovieDetailBaseActivity() {
 
     private fun initRecyclerView() {
 
+        moviesGridAdapter = MoviesGridAdapter()
+
         rvMoviesGridLayoutManager = GridLayoutManager(this, 3)
         rvMoviesGridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(paramAnonymousInt: Int): Int {
-                return 1
+
+            override fun getSpanSize(paramInt: Int): Int {
+
+               var span= when(moviesGridAdapter.getItemViewType(paramInt)){
+
+                    -1 -> 3
+
+                    else -> 1
+                }
+
+                return span
             }
         }
 
-        moviesGridAdapter = MoviesGridAdapter()
-
-
-        rvMoviesCollection.layoutManager= rvMoviesGridLayoutManager
+        rvMoviesCollection.layoutManager = rvMoviesGridLayoutManager
 
         rvMoviesCollection.adapter = moviesGridAdapter
+
+        OverScrollDecoratorHelper.setUpStaticOverScroll(rvMoviesCollection, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+        val decor= OverScrollDecoratorHelper.setUpOverScroll(rvMoviesCollection, OverScrollDecoratorHelper.ORIENTATION_VERTICAL,true);
+
+        decor.setOverScrollStateListener {
+                _, oldState, newState ->
+
+                    run {
+
+//                        when (newState) {
+//
+//                            IOverScrollState.STATE_BOUNCE_BACK -> {
+//                                mainActivityViewModel.refreshMoviesData()
+//
+//                            }
+//                            else -> {}
+//
+//                        }
+
+                    }
+        }
+        decor.setOverScrollUpdateListener(
+
+            IOverScrollUpdateListener { _, state, offset ->
+                run {
+
+                    if (offset > 0) {
+                        topOverScrolling =true // 'view' is currently being over-scrolled from the top.
+                    } else if (offset < 0) {
+
+                        bottomOverScrolling=true; // 'view' is currently being over-scrolled from the bottom.
+
+//                        val translationY = rvMoviesCollection.translationY //- pbBottom.height
+//                        pbBottom.translationY = translationY + offset*0.35f;
+
+//                        ViewCompat.animate(pbBottom).translationY(translationY)
+
+                    } else {
+
+                        if(bottomOverScrolling)
+                            mainActivityViewModel.loadData()
+
+                        topOverScrolling =false
+                        bottomOverScrolling=false
+//                        ViewCompat.animate(pbBottom).translationY(0f).start()
+
+                        // No over-scroll is in-effect.
+                        // This is synonymous with having (state == STATE_IDLE).
+                    }
+
+                }
+
+        })
+
+
+
+
     }
 
     private fun initViewModel() {
@@ -156,17 +244,18 @@ class MainActivity : MovieDetailBaseActivity() {
 
     }
 
-
-    private fun addEventHandlers(){
+    private fun addEventHandlers() {
 
         moviesGridAdapter.onItemTapped.observe(this, onMoviesGridItemTapped )
         moviesGridAdapter.onLastItemReached.observe(this, onMoviesGridLastItemReached)
+        mainActivityViewModel.onfinishedfetchingMovieData.observe(this, onfinishedfetchingMovieData )
     }
 
     private fun removeEventHandlers(){
 
         moviesGridAdapter.onItemTapped.removeObserver( onMoviesGridItemTapped )
         moviesGridAdapter.onLastItemReached.removeObserver( onMoviesGridLastItemReached)
+        mainActivityViewModel.onfinishedfetchingMovieData.removeObserver(onfinishedfetchingMovieData)
     }
 
 
@@ -188,7 +277,15 @@ class MainActivity : MovieDetailBaseActivity() {
 
     val onMoviesGridLastItemReached= Observer<Any?>  {
 
-        mainActivityViewModel.fetchMoreData()
+        mainActivityViewModel.loadData()
+
+    }
+
+
+    val onfinishedfetchingMovieData =  Observer<Any?>  {
+
+
+        ViewCompat.animate(pbBottom).translationY(0f).start()
 
     }
 
@@ -244,7 +341,7 @@ class MainActivity : MovieDetailBaseActivity() {
 
     private fun supportEmbeddedDetail() {
 
-        val orientation = this.getResources().getConfiguration().orientation
+        val orientation = this.resources.configuration.orientation
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             val embeddedDetail: View?= findViewById<NestedScrollView>(R.id.embeddedDetailView)
             if(embeddedDetail!= null){
@@ -257,6 +354,21 @@ class MainActivity : MovieDetailBaseActivity() {
         }
 
     }
+
+    override fun onRefresh() {
+        // Your code to make your refresh action
+        // CallYourRefreshingMethod();
+        mainActivityViewModel.refreshMoviesData()
+        val handler = Handler()
+        handler.postDelayed(Runnable {
+            if (swipeContainer.isRefreshing()) {
+                swipeContainer.setRefreshing(false)
+            }
+        }, 1000)
+
+    }
+
+
 
 
 }

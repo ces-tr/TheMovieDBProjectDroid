@@ -20,15 +20,48 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.5"/>
 
-        <android.support.v7.widget.RecyclerView
-                android:id="@+id/rvMoviesCollection"
+        <android.support.design.widget.CoordinatorLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                app:data="@{viewModel.moviesCollection}"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/guideline"
                 app:layout_constraintStart_toStartOf="parent"
+        >
+            <android.support.constraint.ConstraintLayout
+
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    app:layout_behavior="com.cestr.themoviedb.utils.OverScrollBounceBehavior"
+            >
+
+                <android.support.v4.widget.SwipeRefreshLayout
+                        android:id="@+id/swipeContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                >
+                    <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rvMoviesCollection"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:data="@{viewModel.moviesCollection}"
+
+                            />
+                </android.support.v4.widget.SwipeRefreshLayout>
+                <ProgressBar
+                        android:id="@+id/pbBottom"
+                        android:layout_width="match_parent"
+                        android:layout_height="122dp"
+                        android:padding="12dp"
+                        app:layout_constraintTop_toBottomOf="@+id/swipeContainer"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:layout_marginTop="-12dp"
+
+                        android:layout_gravity="bottom|center_horizontal"
+
                 />
+            </android.support.constraint.ConstraintLayout>
+        </android.support.design.widget.CoordinatorLayout>
 
         <android.support.v4.widget.NestedScrollView
                 android:layout_width="0dp"
@@ -44,7 +77,7 @@
 
 
             <TextView android:layout_width="match_parent"
-                      android:layout_height="100dp"
+                      android:layout_height="wrap_content"
                       android:id="@+id/txtmovieTitle"
                       android:text="@{viewModel.movieModel.movieTitle}"
                       android:textAlignment="viewStart"

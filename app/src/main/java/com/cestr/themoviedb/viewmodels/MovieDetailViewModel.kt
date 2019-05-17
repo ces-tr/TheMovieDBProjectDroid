@@ -1,7 +1,7 @@
 package com.cestr.themoviedb.viewmodels
 
 import android.annotation.SuppressLint
-import android.databinding.Bindable
+import android.util.Log
 import com.cestr.themoviedb.BR
 import com.cestr.themoviedb.dto.MovieVideoResponseWrapper
 import com.cestr.themoviedb.dto.toMovieModel
@@ -11,7 +11,6 @@ import com.cestr.themoviedb.model.MovieVideoModel
 import com.cestr.themoviedb.model.observablemodel.MovieModelObservable
 import com.cestr.themoviedb.viewmodels.base.MovieBaseViewModel
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 import javax.inject.Inject
@@ -21,8 +20,7 @@ open class MovieDetailViewModel @Inject constructor(moviesManager: IMovieManager
 
     var movieModel: MovieModelObservable = MovieModelObservable()
 
-
-    var defaultLanguageSelected :Boolean?=true
+    private var defaultLanguageSelected :Boolean?=true
 
     private val calendar = GregorianCalendar()
 
@@ -34,63 +32,48 @@ open class MovieDetailViewModel @Inject constructor(moviesManager: IMovieManager
 
         try {
 
-            var languageParameter:String? = null
-            if(!defaultLanguageSelected) {
+            var languageParameter: String? = null
+            if (!defaultLanguageSelected) {
                 languageParameter = "es"
             }
 
             fetchMovieDetailData(movieId, languageParameter)
-                        .map {it.toMovieModel()}
-                        .subscribe(){
+                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
+                .map { it.toMovieModel() }
 
-                            if(it!=null) {
+                .subscribe(
 
-                                calendar.time = it.releaseDate
+                    {
+                        it?.let { movieModelresponse ->
 
-                                movieModel.movieTitle = it.title
+                            movieModelresponse.releaseDate?.let { date ->
 
-                                movieModel.movieYear = calendar.get(Calendar.YEAR).toString()
-
-                                movieModel.movieRating = it.vote_average.toString()
-
-                                movieModel.movieDuration = it.runtime.toString()
-
-                                movieModel.movieImageUrl = it.imgUrl
-
-                                movieModel.movieSinopsis = it.sinopsis
-
-
+                                calendar.time = date
+                                this.movieModel.movieYear = calendar.get(Calendar.YEAR).toString()
                             }
+
+                            this.movieModel.movieTitle = movieModelresponse.title
+
+                            this.movieModel.movieRating = movieModelresponse.vote_average.toString()
+
+                            this.movieModel.movieDuration = movieModelresponse.runtime?.toString() ?: "-"
+
+                            this.movieModel.movieImageUrl = movieModelresponse.imgUrl!!
+
+                            this.movieModel.movieSinopsis = movieModelresponse.sinopsis
+
                         }
+                    },
+
+                    {
+                        Log.d("fetchMovieDetailData", "Error:" + it.message)
+                    }
+                )
 
             fetchMovieVideos(movieId).subscribeOn(Schedulers.io())
-                .subscribe {onFinishedFecthingMovieVideoData(it)}
+                .subscribe { onFinishedFecthingMovieVideoData(it) }
 
-//            moviesManager.getMovieData(movieId.toString())
-//                            .observeOn(Schedulers.io())
-//                            .map {it.toMovieModel()
-//                            }
-//                            .subscribeOn(Schedulers.io())
-//                            .subscribe{
-//
-//                                it.let {
-//
-//                                    movieTitle = it.title
-//
-//                                    calendar.time = it.releaseDate
-//                                    movieYear = calendar.get(Calendar.YEAR).toString()
-//
-//                                    movieRating = it.vote_average.toString()
-//
-//                                    movieDuration = it.runtime.toString()
-//
-//                                    movieImageUrl= it.imgUrl
-//
-//                                    movieSinopsis = it.sinopsis
-//
-//                                }
-//                            }
-//
         }
         catch (e: Exception ){
 
@@ -99,12 +82,13 @@ open class MovieDetailViewModel @Inject constructor(moviesManager: IMovieManager
 
     }
 
-    fun onFinishedFecthingMovieVideoData(responseWrapper : MovieVideoResponseWrapper?){
+    private fun onFinishedFecthingMovieVideoData(responseWrapper : MovieVideoResponseWrapper?){
         responseWrapper.let {
 
             movieVideoResponse(it!!)?.subscribe(){
                 if(it!= null) {
 
+                    movieModel.movieVideosCollection?.clear()
                     movieModel.movieVideosCollection?.addAll(it)
                     movieModel.notifyPropertyChanged(BR.movieVideosCollection)
 
@@ -113,13 +97,11 @@ open class MovieDetailViewModel @Inject constructor(moviesManager: IMovieManager
         }
     }
 
-    fun movieVideoResponse (responseWrapper : MovieVideoResponseWrapper): Observable<MutableList<MovieVideoModel>>? {
+    private fun movieVideoResponse (responseWrapper : MovieVideoResponseWrapper): Observable<MutableList<MovieVideoModel>>? {
 
-        val response= Observable.fromIterable(responseWrapper.results)
+        return Observable.fromIterable(responseWrapper.results)
             .map { it -> it.toMovieVideoModel()}
             .toList()
             .toObservable()
-
-        return  response
     }
 }

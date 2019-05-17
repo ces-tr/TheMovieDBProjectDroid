@@ -1,7 +1,9 @@
 package com.cestr.themoviedb.views.main.viewholder
 
+import android.databinding.DataBindingUtil
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import com.cestr.themoviedb.databinding.CellMoviesGridBinding
 
 import com.cestr.themoviedb.model.MovieModel
 import kotlinx.android.synthetic.main.cell_movies_grid.view.*
@@ -9,6 +11,7 @@ import kotlinx.android.synthetic.main.cell_movies_grid.view.*
 
 class ImageViewHolder(paramView: View) : RecyclerView.ViewHolder(paramView) {
 
+    private val cellBindableObject: CellMoviesGridBinding = DataBindingUtil.bind(itemView)!!
 
     private var view: View? = null
 
@@ -16,15 +19,20 @@ class ImageViewHolder(paramView: View) : RecyclerView.ViewHolder(paramView) {
             view= paramView
         }
 
-        fun bind(productDataBean: MovieModel, paramInt: Int) {
+        fun bind(movieModel: MovieModel, paramInt: Int) {
+            cellBindableObject.movie =movieModel
 
-                itemView.movie_photo_imageView.loadUrl(productDataBean.imgUrl)
+            movieModel.imgUrl?.let {
+                itemView.movie_photo_imageView.loadUrl(movieModel.imgUrl)
+            }
+
         }
 
 
 
     fun getView(): View {
-                return this.itemView!!
+
+        return this.itemView!!
     }
 
 

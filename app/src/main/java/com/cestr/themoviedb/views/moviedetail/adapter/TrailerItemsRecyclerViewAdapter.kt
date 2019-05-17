@@ -34,6 +34,8 @@ class TrailerItemsRecyclerViewAdapter : RecyclerView.Adapter<VideoItemViewHolder
         }
 
         override fun setData(items: List<MovieVideoModel>) {
+
+            videos.clear()
             videos.addAll(items)
 
             notifyDataSetChanged()

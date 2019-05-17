@@ -8,6 +8,8 @@ import android.databinding.PropertyChangeRegistry
 //Removed BaseObservable , adding android.arch.lifecycle.ViewModel
 open class ObservableBaseViewModel : ViewModel(), Observable {
 
+    var isBusy:Boolean =false
+
     @Transient
     private var mCallbacks: PropertyChangeRegistry? = null
 

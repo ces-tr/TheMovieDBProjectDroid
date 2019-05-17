@@ -6,9 +6,9 @@ class MovieModel (
 
     val id : Int=0,
     val title: String = "",
-    val imgUrl: String = "",
+    val imgUrl: String? = "",
     val releaseDate: Date?,
     val vote_average: Double,
-    val runtime: Int,
+    val runtime: Int?,
     val sinopsis:String
 )

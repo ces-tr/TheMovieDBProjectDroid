@@ -27,7 +27,7 @@ data class MovieResponseWrapper(
 class MovieResponse {
 
     @Json(name ="poster_path")
-    val poster_path: String = ""
+    val poster_path: String? = ""
 
     @Json(name ="adult")
     val isAdult: Boolean = false
@@ -66,14 +66,19 @@ class MovieResponse {
     val vote_average: Double = 0.toDouble()
 
     @Json(name ="runtime")
-    val runtime : Int= 0
+    val runtime : Int? = 0
 
-    fun getDateFromString( strDate:String) :Date{
+    fun getDateFromString( strDate:String) :Date? {
+            try{
+                    val formatter= SimpleDateFormat("yyyy-MM-dd",Locale.US)
+                    val result = formatter.parse(strDate)
 
-        val formatter= SimpleDateFormat("yyyy-MM-dd",Locale.US)
-        val result = formatter.parse(strDate)
+                    return result;}
+            catch (e:Exception ) {
 
-        return result;
+
+            }
+        return null
     }
 
 }

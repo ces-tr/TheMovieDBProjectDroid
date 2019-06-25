@@ -63,6 +63,8 @@ open class MovieDetailViewModel @Inject constructor(moviesManager: IMovieManager
 
                             this.movieModel.movieSinopsis = movieModelresponse.sinopsis
 
+                            this.movieModel.moviebackDropImageUrl = movieModelresponse.backDropImgUrl
+
                         }
                     },
 

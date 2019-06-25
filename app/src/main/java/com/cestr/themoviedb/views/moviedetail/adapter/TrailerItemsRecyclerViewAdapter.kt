@@ -28,10 +28,7 @@ class TrailerItemsRecyclerViewAdapter : RecyclerView.Adapter<VideoItemViewHolder
             holder.bind(videos[position]);
         }
 
-        override fun changedPositions(positions: Set<Int>) {
 
-//            positions.forEach(this::notifyItemChanged)
-        }
 
         override fun setData(items: List<MovieVideoModel>) {
 

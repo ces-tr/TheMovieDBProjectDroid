@@ -7,6 +7,7 @@ import com.cestr.themoviedb.model.MovieVideoModel
 
 class MovieModelObservable : BaseObservable() {
 
+
     @Bindable
     var movieTitle : String = ""
         public set(value) {
@@ -56,7 +57,12 @@ class MovieModelObservable : BaseObservable() {
             field = value
             notifyPropertyChanged(BR.movieVideosCollection)
         }
-
+    @Bindable
+    var moviebackDropImageUrl: String? =""
+        public set(value) {
+            field = value
+            notifyPropertyChanged(BR.moviebackDropImageUrl)
+        }
 
     init{
         movieVideosCollection= mutableListOf<MovieVideoModel>()

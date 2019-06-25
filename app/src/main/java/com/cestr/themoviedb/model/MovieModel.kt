@@ -2,13 +2,16 @@ package com.cestr.themoviedb.model
 
 import java.util.*
 
-class MovieModel (
+class MovieModel(
 
-    val id : Int=0,
+    val id: Int = 0,
     val title: String = "",
     val imgUrl: String? = "",
     val releaseDate: Date?,
     val vote_average: Double,
     val runtime: Int?,
-    val sinopsis:String
+    val sinopsis: String,
+    val genre_ids: Array<Int>?,
+    val backDropImgUrl: String? = ""
+
 )

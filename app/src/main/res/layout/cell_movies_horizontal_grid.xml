@@ -4,7 +4,6 @@
         xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
                 name="movie"
                 type="com.cestr.themoviedb.model.MovieModel" />
@@ -12,26 +11,25 @@
     </data>
 
     <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:layout_gravity="center_horizontal"
-            android:background="@color/grey_light"
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_gravity="center"
+
+            android:paddingHorizontal="3dp"
     >
-
-
         <com.cestr.themoviedb.views.MovieImageView
 
                 android:adjustViewBounds="true"
+                android:layout_weight="1"
                 android:scaleType="fitXY"
                 android:id="@+id/movie_photo_imageView"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:layout_gravity="center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 app:imageSize= "185"
         />
     </LinearLayout>
-    <!--app:imageUrl="@{movie.imgUrl}"-->
+
 
 </layout>
+

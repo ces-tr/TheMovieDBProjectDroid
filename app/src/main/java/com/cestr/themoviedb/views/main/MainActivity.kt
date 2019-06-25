@@ -32,8 +32,6 @@ import me.everything.android.ui.overscroll.OverScrollDecoratorHelper
 import me.everything.android.ui.overscroll.IOverScrollUpdateListener
 
 
-
-
 class MainActivity : MovieDetailBaseActivity() , SwipeRefreshLayout.OnRefreshListener{
 
     private var shouldSupportEmbeddedMovieDetail: Boolean=false
@@ -165,12 +163,12 @@ class MainActivity : MovieDetailBaseActivity() , SwipeRefreshLayout.OnRefreshLis
 
             override fun getSpanSize(paramInt: Int): Int {
 
-               var span= when(moviesGridAdapter.getItemViewType(paramInt)){
+               var span= when(moviesGridAdapter.getItemViewType(paramInt)) {
 
                     -1 -> 3
 
                     else -> 1
-                }
+               }
 
                 return span
             }
@@ -251,7 +249,7 @@ class MainActivity : MovieDetailBaseActivity() , SwipeRefreshLayout.OnRefreshLis
         mainActivityViewModel.onfinishedfetchingMovieData.observe(this, onfinishedfetchingMovieData )
     }
 
-    private fun removeEventHandlers(){
+    private fun removeEventHandlers() {
 
         moviesGridAdapter.onItemTapped.removeObserver( onMoviesGridItemTapped )
         moviesGridAdapter.onLastItemReached.removeObserver( onMoviesGridLastItemReached)
@@ -346,7 +344,7 @@ class MainActivity : MovieDetailBaseActivity() , SwipeRefreshLayout.OnRefreshLis
             val embeddedDetail: View?= findViewById<NestedScrollView>(R.id.embeddedDetailView)
             if(embeddedDetail!= null){
 
-                shouldSupportEmbeddedMovieDetail =true
+                shouldSupportEmbeddedMovieDetail = true
             }
         }else{
 

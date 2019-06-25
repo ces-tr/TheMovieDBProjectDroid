@@ -68,6 +68,10 @@ class MovieResponse {
     @Json(name ="runtime")
     val runtime : Int? = 0
 
+
+    @Json(name ="genre_ids")
+    val genre_ids: Array<Int>? = null
+
     fun getDateFromString( strDate:String) :Date? {
             try{
                     val formatter= SimpleDateFormat("yyyy-MM-dd",Locale.US)
@@ -87,9 +91,11 @@ fun MovieResponse.toMovieModel() = MovieModel(
     id = id,
     title = title,
     imgUrl = poster_path,
+    backDropImgUrl = backdrop_path,
     releaseDate = getDateFromString(release_date),
     vote_average = vote_average,
     runtime = runtime,
-    sinopsis =overview
+    sinopsis =overview,
+    genre_ids = genre_ids
 
 )

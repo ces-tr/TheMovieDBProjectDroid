@@ -1,8 +1,6 @@
 package com.cestr.themoviedb.views.base
 
-import android.app.Activity
-import android.content.DialogInterface
-import android.support.v7.app.AlertDialog
+
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.cestr.themoviedb.R

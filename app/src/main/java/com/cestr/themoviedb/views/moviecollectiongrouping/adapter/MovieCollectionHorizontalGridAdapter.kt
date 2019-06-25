@@ -1,25 +1,27 @@
-package com.cestr.themoviedb.views.main.adapter
+package com.cestr.themoviedb.views.moviecollectiongrouping.adapter
 
 import android.content.Context
 import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.cestr.themoviedb.views.main.viewholder.ImageViewHolder
 import com.cestr.themoviedb.utils.ActionLiveData
 
 import com.cestr.themoviedb.R
+import com.cestr.themoviedb.interfaces.IOnMovieItemTouchListener
 
 import com.cestr.themoviedb.model.MovieModel
 import com.cestr.themoviedb.views.base.IBindableAdapter
+import com.cestr.themoviedb.views.moviecollectiongrouping.viewholder.HorizontalCollectionImageViewHolder
 
 
-class MoviesGridAdapter : ListAdapter<MovieModel, RecyclerView.ViewHolder>(ITEM_COMPARATOR), IBindableAdapter<MovieModel> {
+class MovieCollectionHorizontalGridAdapter : ListAdapter<MovieModel, RecyclerView.ViewHolder>(ITEM_COMPARATOR), IBindableAdapter<MovieModel> {
 
     val LAST_ITEM_REACHED_THRESHOLD = 3
 
-//    var productList = mutableListOf<MovieModel>()
 
     var context:Context? = null ;
 
@@ -41,7 +43,7 @@ class MoviesGridAdapter : ListAdapter<MovieModel, RecyclerView.ViewHolder>(ITEM_
 //         if (viewType == ITEM_PROGRESS)
 //             holder = BottomLoadingViewHolder(inflater.inflate(R.layout.cell_bottom_loading, parent,false ))
 //        else
-             holder = ImageViewHolder(inflater.inflate(R.layout.cell_movies_grid, parent, false))
+        holder = HorizontalCollectionImageViewHolder(inflater.inflate(R.layout.cell_movies_horizontal_grid, parent, false))
 
 
         return holder!!
@@ -53,7 +55,7 @@ class MoviesGridAdapter : ListAdapter<MovieModel, RecyclerView.ViewHolder>(ITEM_
 
 //        holder.bind(movie,p1)
 
-        if (holder is ImageViewHolder) {
+        if (holder is HorizontalCollectionImageViewHolder) {
             holder.bind(movie, p1)
 
 
@@ -73,6 +75,8 @@ class MoviesGridAdapter : ListAdapter<MovieModel, RecyclerView.ViewHolder>(ITEM_
 
     }
 
+
+
     fun checkBoundItemPosition(p1: Int) {
 
         if (p1 >= itemCount - 1){
@@ -82,29 +86,30 @@ class MoviesGridAdapter : ListAdapter<MovieModel, RecyclerView.ViewHolder>(ITEM_
         }
     }
 
-    private fun fetchMoreData() {
+    private fun fetchMoreData(){
 
         onLastItemReached.sendAction(Any())
     }
 
-    private fun addEventHandlers(holder: ImageViewHolder, p1: Int)
+    private fun addEventHandlers(holder: HorizontalCollectionImageViewHolder, p1: Int)
     {
         holder.itemView.setOnClickListener {
             onItemTapped.sendAction(getItem(p1));
+            (context as IOnMovieItemTouchListener)?.onMovieItemTouchedEvent(getItem(p1))
+
         };
     }
 
-    private fun removeEventHandlers(holder: ImageViewHolder)
+    private fun removeEventHandlers(holder: HorizontalCollectionImageViewHolder)
     {
         holder.itemView.setOnClickListener(null)
     }
 
     override fun setData(items: List<MovieModel>) {
 
-//        productList.addAll(items)   ;
-        this.submitList(items);
-        notifyDataSetChanged()
-   //     notifyItemRangeChanged(0, items.size -1);
+        this.submitList( ArrayList(items)) //call to submitList needs a new list to be diffed and displayed.
+//        notifyDataSetChanged()  using listadapter will be  performed after diffutilcallback
+//     notifyItemRangeChanged(0, items.size -1);
 
     }
 
@@ -132,8 +137,8 @@ class MoviesGridAdapter : ListAdapter<MovieModel, RecyclerView.ViewHolder>(ITEM_
                 newItem: MovieModel
             ): Boolean {
 
-                //return oldItem.id == newItem.id
-                return oldItem.equals(newItem);
+                Log.d("areContentsTheSame",(oldItem == newItem).toString())
+                return oldItem == newItem;
             }
 
             override fun areItemsTheSame(
@@ -141,6 +146,7 @@ class MoviesGridAdapter : ListAdapter<MovieModel, RecyclerView.ViewHolder>(ITEM_
                 newItem: MovieModel
             ): Boolean {
 
+                Log.d("areItemsTheSame",(oldItem.id == newItem.id).toString())
                 return oldItem.id == newItem.id
             }
         }

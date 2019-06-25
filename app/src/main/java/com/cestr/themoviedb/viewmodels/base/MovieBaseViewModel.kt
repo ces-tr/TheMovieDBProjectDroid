@@ -1,10 +1,10 @@
 package com.cestr.themoviedb.viewmodels.base
 
 import android.annotation.SuppressLint
+import com.cestr.themoviedb.dto.MovieGenresResponseWrapper
 import com.cestr.themoviedb.dto.MovieResponse
 import com.cestr.themoviedb.dto.MovieVideoResponseWrapper
 import com.cestr.themoviedb.manager.IMovieManager
-import com.cestr.themoviedb.model.observablemodel.MovieModelObservable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
@@ -15,20 +15,23 @@ abstract class MovieBaseViewModel(var moviesManager: IMovieManager) : ActivityBa
     @SuppressLint("CheckResult")
     protected fun fetchMovieDetailData(movieId: Int, language: String?) : Observable<MovieResponse> {
 
-           val fetchMoviesObserver= moviesManager.getMovieData(movieId.toString(),language)
+        return moviesManager.getMovieData(movieId.toString(),language)
                 .observeOn(Schedulers.io())
-
-
-        return fetchMoviesObserver!!;
+                .subscribeOn(Schedulers.io())
     }
 
     protected fun fetchMovieVideos(movieId:Int): Observable<MovieVideoResponseWrapper>  {
 
-        val fetchMoviesVideosObserver= moviesManager.getMovieVideos(movieId)
+        return moviesManager.getMovieVideos(movieId)
             .observeOn(Schedulers.io())
+            .subscribeOn(Schedulers.io())
+    }
 
+    protected fun fetchMovieGenres(): Observable<MovieGenresResponseWrapper>  {
 
-        return fetchMoviesVideosObserver
+        return moviesManager.getGenres()
+            .observeOn(Schedulers.io())
+            .subscribeOn(Schedulers.io())
     }
 
 }

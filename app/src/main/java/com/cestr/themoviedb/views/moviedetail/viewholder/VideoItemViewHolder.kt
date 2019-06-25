@@ -7,7 +7,7 @@ import kotlinx.android.synthetic.main.cell_trailers_list.view.*
 
 class VideoItemViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView!!) {
 
-    fun bind(movievideoModel: MovieVideoModel){
+    fun bind(movievideoModel: MovieVideoModel) {
 
         itemView.txtvideoName.text = movievideoModel.name
     }

@@ -28,10 +28,11 @@ class MovieDetailActivity : MovieDetailBaseActivity() {
 
     override fun initProperties()
     {
-        if (intent.extras!!.containsKey(Utils.movieIdParam)){
-            movieId=   intent.extras.getInt(Utils.movieIdParam)
+        if (intent.extras!!.containsKey(Utils.movieIdParam)) {
+            movieId= intent.extras.getInt(Utils.movieIdParam)
         }
-        if (intent.extras!!.containsKey(Utils.defaultLanguage)){
+
+        if (intent.extras!!.containsKey(Utils.defaultLanguage)) {
             defaultLanguageSelected=   intent.extras.getBoolean(Utils.defaultLanguage)
         }
 

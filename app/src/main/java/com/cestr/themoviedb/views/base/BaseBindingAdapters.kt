@@ -4,6 +4,8 @@ import android.databinding.BindingAdapter
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.View.*
+import com.cestr.themoviedb.model.CollectionGrouping
+import com.cestr.themoviedb.model.MovieModel
 import com.cestr.themoviedb.views.MovieImageView
 
 @BindingAdapter("imageUrl")

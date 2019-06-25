@@ -1,6 +1,7 @@
 package com.cestr.themoviedb.di.module
 
 import com.cestr.themoviedb.di.annotations.mapkeys.ActivityViewModelKey
+import com.cestr.themoviedb.viewmodels.GroupingMovieListViewModel
 import com.cestr.themoviedb.viewmodels.MainActivityViewModel
 import com.cestr.themoviedb.viewmodels.MovieDetailViewModel
 import com.cestr.themoviedb.viewmodels.base.ActivityBaseViewModel
@@ -22,7 +23,10 @@ abstract class ViewModelFactoryModule {
     @ActivityViewModelKey(MovieDetailViewModel::class)
     abstract fun bindMovieDetailViewModel(viewModel: MovieDetailViewModel): ActivityBaseViewModel //Resolves MainActivityViewModel
 
-
+    @Binds
+    @IntoMap
+    @ActivityViewModelKey(GroupingMovieListViewModel::class)
+    abstract fun bindGroupingMovieListViewModel(viewModel: GroupingMovieListViewModel): ActivityBaseViewModel //Resolves MainActivityViewModel
 
 
     //Add more ViewModels here

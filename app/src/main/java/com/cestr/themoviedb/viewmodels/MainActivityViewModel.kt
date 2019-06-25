@@ -126,6 +126,9 @@ class MainActivityViewModel @Inject constructor(moviesManager: IMovieManager): M
                                             initVMWithMovieData()
                                             isMovieDetailsEnabled = false
                                         }
+
+                                        testGrouping()
+
                                     }
                                 },
                                 {
@@ -144,6 +147,38 @@ class MainActivityViewModel @Inject constructor(moviesManager: IMovieManager): M
 
 
         }
+    }
+
+    private fun testGrouping() {
+
+        val hashMap = HashMap<Int, MutableList<MovieModel>>()
+
+        moviesCollection?.let {
+
+            for ( item in it ) {
+
+                for (key:Int in item.genre_ids!! ) {
+
+//                    val keyValue= hashMap.getOrPut(key, {
+//                        mutableListOf<MovieModel>(item)
+//                    })
+
+                    if(!hashMap.containsKey(key)) {
+                        val list =mutableListOf<MovieModel>(item)
+                        hashMap[key] = list
+
+                    }
+                    else {
+                        val keyValue= hashMap[key]
+                        keyValue?.add(item)
+
+                    }
+
+                }
+            }
+
+        }
+
     }
 
     fun orderListByMostPopular() {
